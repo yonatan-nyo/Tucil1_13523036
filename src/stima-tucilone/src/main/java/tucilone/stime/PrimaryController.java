@@ -53,6 +53,10 @@ public class PrimaryController {
     private int iterationCount;
     private double lastExecutionTime;
 
+    private boolean isValidInputPiece(char c) {
+        return c == ' ' || (c >= 'A' && c <= 'Z');
+    }
+
     @SuppressWarnings("unused")
     @FXML
     private void handleFileUpload() {
@@ -99,11 +103,24 @@ public class PrimaryController {
                     }
 
                     // Read all lines
+                    boolean allLinesValid = true;
                     List<String> lines = new ArrayList<>();
                     int maxCol = 0;
                     while ((line = reader.readLine()) != null) {
                         lines.add(line);
                         maxCol = Math.max(maxCol, line.length());
+                        // check if all characters are valid
+                        for (char c : line.toCharArray()) {
+                            if (!isValidInputPiece(c)) {
+                                allLinesValid = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!allLinesValid) {
+                        displayError("Invalid characters found in the puzzle pieces.");
+                        return;
                     }
 
                     // Extract pieces
@@ -232,7 +249,13 @@ public class PrimaryController {
     }
 
     private void displayError(String message) {
-        System.err.println("Error: " + message);
+        Platform.runLater(() -> {
+            // clear canvas
+            clearGeneratedImage();
+            // clear output text area
+            outputTextArea.clear();
+            outputTextArea.appendText("Error: " + message + "\n");
+        });
     }
 
     private void handleSolve() {
