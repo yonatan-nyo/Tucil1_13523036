@@ -13,6 +13,10 @@
   -fx-border-color: #555555;
 }
 
+.text-area {
+  -fx-font-family: "Monospace";
+}
+
 .button {
   -fx-pref-width: 150px;
   -fx-background-color: #444444;

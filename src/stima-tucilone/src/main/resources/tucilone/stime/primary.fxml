@@ -9,23 +9,27 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.canvas.Canvas?>
 
 <VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/8.0.171"
     xmlns:fx="http://javafx.com/fxml/1" fx:controller="tucilone.stime.PrimaryController">
-    <!-- Main content area -->
     <VBox alignment="CENTER" spacing="20.0" HBox.hgrow="ALWAYS" style="-fx-padding:20 0">
         <children>
-            <Label text="Puzzle" styleClass="title-label" />
-
-            <GridPane fx:id="matrixGrid" alignment="CENTER" hgap="10" vgap="10" />
-
-            <!-- Add input fields for x and y coordinates -->
-            <HBox alignment="CENTER" spacing="10.0">
+            <VBox alignment="CENTER" spacing="10.0">
+                <Label text="Puzzle" styleClass="title-label" />
                 <Button fx:id="fileUploadButton" text="(Input dari file)"
                     onAction="#handleFileUpload" styleClass="button-file" />
-            </HBox>
+                <ProgressIndicator fx:id="loadingIndicator" visible="false" />
+                <!-- image container -->
+                <Pane fx:id="imagePane" prefWidth="800" prefHeight="100">
+                    <StackPane alignment="CENTER" prefWidth="800" prefHeight="100">
+                        <Canvas fx:id="canvas" width="800" height="100" />
+                    </StackPane>
+                </Pane>
+            </VBox>
 
-            <ProgressIndicator fx:id="loadingIndicator" visible="false" />
 
             <VBox alignment="CENTER" spacing="10.0" style="-fx-padding:20">
                 <Label text="Output" styleClass="text-white" />
@@ -33,6 +37,10 @@
                     editable="false" VBox.vgrow="ALWAYS" styleClass="text-area" />
             </VBox>
 
+            <HBox alignment="CENTER" spacing="10.0">
+                <Button text="Download Solution" onAction="#downloadSolution"
+                    styleClass="button-action" />
+            </HBox>
         </children>
     </VBox>
 </VBox>

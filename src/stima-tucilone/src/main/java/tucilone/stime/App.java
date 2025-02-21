@@ -18,10 +18,11 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        javafx.scene.text.Font.getFamilies();
         stage.getIcons().add(new Image(App.class.getResourceAsStream("app-icon.png")));
         stage.setTitle("Yonatan");
 
-        scene = new Scene(loadFXML("primary"), 640, 480);
+        scene = new Scene(loadFXML("primary"), 800, 640);
         scene.getStylesheets().clear();
         scene.getStylesheets().add(App.class.getResource("global.css").toExternalForm());
         stage.setScene(scene);
