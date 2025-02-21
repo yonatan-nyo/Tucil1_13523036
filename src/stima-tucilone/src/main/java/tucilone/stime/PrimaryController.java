@@ -57,10 +57,17 @@ public class PrimaryController {
         return c == ' ' || (c >= 'A' && c <= 'Z');
     }
 
-    @SuppressWarnings("unused")
     @FXML
+    @SuppressWarnings("unused")
     private void handleFileUpload() {
         loadingIndicator.setVisible(true);
+        if (fileUploadButton == null) {
+            System.out.println("fileUploadButton is null!");
+            return;
+        } else if (fileUploadButton.getScene() == null) {
+            System.out.println("Scene is not set yet!");
+            return;
+        }
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
@@ -126,17 +133,17 @@ public class PrimaryController {
                     // Extract pieces
                     puzzlePieces = getAllPiecesFromLines(lines, lines.size(), maxCol);
 
-                    // if puzzle piece count is not equal to piecesCount throw error
-                    if (puzzlePieces.size() != piecesCount) {
-                        displayError(String.format("Incorrect amount of pieces input %d received %d",
-                                puzzlePieces.size(), piecesCount));
-                    }
-
                     // Debug: Print pieces
                     System.out.println("\nLoaded Puzzle Pieces:");
                     for (PuzzlePiece piece : puzzlePieces) {
                         piece.printPiece();
                         System.out.println();
+                    }
+
+                    // if puzzle piece count is not equal to piecesCount throw error
+                    if (puzzlePieces.size() != piecesCount) {
+                        displayError(String.format("Incorrect amount of pieces input %d received %d",
+                                puzzlePieces.size(), piecesCount));
                     }
 
                     handleSolve();
@@ -161,10 +168,19 @@ public class PrimaryController {
         boolean[][] visited = new boolean[rows][columns];
         char[][] grid = new char[rows][columns];
 
+        if (lines.size() < rows) {
+            displayError("Wrong Size");
+            return pieces;
+        }
+
         for (int i = 0; i < rows; i++) {
             char[] rowChars = lines.get(i).toCharArray();
+            if (rowChars.length > columns) {
+                throw new IllegalArgumentException("Row " + i + " has more characters than expected.");
+            }
+
             Arrays.fill(grid[i], '.');
-            System.arraycopy(rowChars, 0, grid[i], 0, rowChars.length);
+            System.arraycopy(rowChars, 0, grid[i], 0, Math.min(rowChars.length, columns));
         }
 
         // 4-way movement
@@ -259,7 +275,6 @@ public class PrimaryController {
     }
 
     private void handleSolve() {
-        clearGeneratedImage();
         board = new char[rows][columns];
         for (char[] row : board) {
             Arrays.fill(row, '.');
@@ -287,33 +302,33 @@ public class PrimaryController {
             }
         }
 
-        outputTextArea.clear();
         if (solved) {
-            outputTextArea.appendText("Solution found:\n");
-            System.out.println("Solution found!");
-
-            drawGeneratedImage();
-
-            for (char[] row : board) {
-                outputTextArea.appendText(new String(row) + "\n");
-            }
-
-            outputTextArea.appendText("Execution time: " + lastExecutionTime + " ms\n");
-            outputTextArea.appendText("Iteration count: " + iterationCount + "\n");
-
+            Platform.runLater(() -> {
+                outputTextArea.clear();
+                drawGeneratedImage();
+                outputTextArea.appendText("Solution found:\n");
+                System.out.println("Solution found!");
+                for (char[] row : board) {
+                    outputTextArea.appendText(new String(row) + "\n");
+                }
+                outputTextArea.appendText("Execution time: " + lastExecutionTime + " ms\n");
+                outputTextArea.appendText("Iteration count: " + iterationCount + "\n");
+            });
         } else {
-            outputTextArea.appendText("No solution found.\n");
-            System.out.println("No solution found.");
-            outputTextArea.appendText("Execution time: " + lastExecutionTime + " ms\n");
-            outputTextArea.appendText("Iteration count: " + iterationCount + "\n");
+            Platform.runLater(() -> {
+                outputTextArea.clear();
+                clearGeneratedImage();
+                outputTextArea.appendText("No solution found.\n");
+                System.out.println("No solution found.");
+                outputTextArea.appendText("Execution time: " + lastExecutionTime + " ms\n");
+                outputTextArea.appendText("Iteration count: " + iterationCount + "\n");
+            });
         }
     }
 
     private void clearGeneratedImage() {
-        Platform.runLater(() -> {
-            GraphicsContext gc = canvas.getGraphicsContext2D();
-            gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight()); // Clears the entire canvas
-        });
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight()); // Clears the entire canvas
     }
 
     private void drawGeneratedImage() {
@@ -341,7 +356,8 @@ public class PrimaryController {
 
         // Define 30 colors mapped to characters
         Map<Character, String> colorMap = new HashMap<>();
-        char[] uniqueChars = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
+        char[] uniqueChars = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
+                'R',
                 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '.' };
         String[] hexColors = {
                 "#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#A133FF", "#33FFA1",
@@ -416,6 +432,10 @@ public class PrimaryController {
         if (pieceIndex == pieces.size()) {
             return true;
         }
+        if (pieceIndex < 0 || pieceIndex >= pieces.size()) {
+            System.err.println("Invalid piece index: " + pieceIndex);
+            return false;
+        }
 
         PuzzlePiece piece = pieces.get(pieceIndex);
         List<PuzzlePiece> variations = piece.generateAllVariations();
@@ -454,15 +474,20 @@ public class PrimaryController {
     }
 
     private boolean canPlacePiece(int r, int c, PuzzlePiece piece, char[][] board) {
+        int rowsLen = board.length;
+        int columnsLen = board[0].length;
         int pieceRows = piece.getRows();
         int pieceCols = piece.getCols();
 
-        if (r + pieceRows > rows || c + pieceCols > columns) {
+        if (r < 0 || c < 0 || r + pieceRows > rowsLen || c + pieceCols > columnsLen) {
             return false;
         }
 
         for (int i = 0; i < pieceRows; i++) {
             for (int j = 0; j < pieceCols; j++) {
+                if (r + i >= rowsLen || c + j >= columnsLen) {
+                    return false;
+                }
                 if (piece.getPiece()[i][j] != '.' && board[r + i][c + j] != '.') {
                     return false;
                 }
