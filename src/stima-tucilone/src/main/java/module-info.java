@@ -5,5 +5,7 @@ module tucilone.stime {
     requires javafx.fxml;
 
     opens tucilone.stime to javafx.fxml;
+
     exports tucilone.stime;
+    exports tucilone.stime.utils;
 }
