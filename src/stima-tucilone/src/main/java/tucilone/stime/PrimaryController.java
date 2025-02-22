@@ -142,11 +142,11 @@ public class PrimaryController {
 
                     // if puzzle piece count is not equal to piecesCount throw error
                     if (puzzlePieces.size() != piecesCount) {
-                        displayError(String.format("Incorrect amount of pieces input %d received %d",
+                        displayError(String.format("Incorrect amount of pieces received %d input %d",
                                 puzzlePieces.size(), piecesCount));
+                    } else {
+                        handleSolve();
                     }
-
-                    handleSolve();
 
                 } catch (IOException e) {
                     displayError("Error reading file: " + e.getMessage());
