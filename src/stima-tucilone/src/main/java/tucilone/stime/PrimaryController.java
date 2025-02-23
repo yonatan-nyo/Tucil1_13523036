@@ -115,6 +115,12 @@ public class PrimaryController {
                         return;
                     }
 
+                    // if mode is not DEFAULT throw error
+                    if (!mode.equals("DEFAULT")) {
+                        displayError("Invalid mode. Only 'DEFAULT' mode is supported.");
+                        return;
+                    }
+
                     // Read all lines
                     boolean allLinesValid = true;
                     List<String> lines = new ArrayList<>();
