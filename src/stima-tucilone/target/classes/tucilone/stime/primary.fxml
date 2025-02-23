@@ -4,7 +4,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.text.TextFlow?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Button?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.layout.GridPane?>
@@ -33,9 +34,12 @@
 
             <VBox alignment="CENTER" spacing="10.0" style="-fx-padding:20">
                 <Label text="Output" styleClass="text-white" />
-                <TextArea fx:id="outputTextArea" prefWidth="400" prefHeight="200" wrapText="true"
-                    editable="false" VBox.vgrow="ALWAYS" styleClass="text-area" />
+                <ScrollPane fitToWidth="true" fitToHeight="true" prefWidth="400" prefHeight="200">
+                    <TextFlow fx:id="outputTextFlow" VBox.vgrow="ALWAYS"
+                        style="-fx-background-color: #222222; -fx-padding: 10px;" />
+                </ScrollPane>
             </VBox>
+
 
             <HBox alignment="CENTER" spacing="10.0">
                 <Button text="Download Solution" onAction="#downloadSolution"

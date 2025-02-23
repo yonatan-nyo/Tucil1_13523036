@@ -24,10 +24,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TextArea;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import tucilone.stime.utils.PuzzlePiece;
 
@@ -39,13 +40,13 @@ public class PrimaryController {
     private ProgressIndicator loadingIndicator;
 
     @FXML
-    private TextArea outputTextArea;
-
-    @FXML
     private Canvas canvas;
 
     @FXML
     private Pane imagePane;
+
+    @FXML
+    private TextFlow outputTextFlow;
 
     private List<PuzzlePiece> puzzlePieces = new ArrayList<>();
     private int rows, columns, piecesCount;
@@ -278,11 +279,14 @@ public class PrimaryController {
 
     private void displayError(String message) {
         Platform.runLater(() -> {
-            // clear canvas
+            // Clear canvas
             clearGeneratedImage();
-            // clear output text area
-            outputTextArea.clear();
-            outputTextArea.appendText("Error: " + message + "\n");
+
+            // Clear output text flow
+            outputTextFlow.getChildren().clear();
+
+            // Add red-colored error message
+            appendColoredText("Error: " + message + "\n", "#FF0000");
         });
     }
 
@@ -316,26 +320,59 @@ public class PrimaryController {
 
         if (solved) {
             Platform.runLater(() -> {
-                outputTextArea.clear();
-                drawGeneratedImage();
-                outputTextArea.appendText("Solution found:\n");
-                System.out.println("Solution found!");
-                for (char[] row : board) {
-                    outputTextArea.appendText(new String(row) + "\n");
+                Map<Character, String> colorMap = new HashMap<>();
+                char[] uniqueChars = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+                        'Q',
+                        'R',
+                        'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '.' };
+                String[] hexColors = {
+                        "#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#A133FF", "#33FFA1",
+                        "#FFD700", "#7CFC00", "#DC143C", "#8A2BE2", "#FF4500", "#00CED1",
+                        "#FF1493", "#ADFF2F", "#20B2AA", "#9932CC", "#FF6347", "#4682B4",
+                        "#EE82EE", "#3CB371", "#8B0000", "#556B2F", "#FF8C00", "#4169E1",
+                        "#9ACD32", "#D2691E", "#000000"
+                };
+
+                for (int i = 0; i < uniqueChars.length; i++) {
+                    colorMap.put(uniqueChars[i], hexColors[i]);
                 }
-                outputTextArea.appendText("Execution time: " + lastExecutionTime + " ms\n");
-                outputTextArea.appendText("Iteration count: " + iterationCount + "\n");
+
+                outputTextFlow.getChildren().clear();
+                drawGeneratedImage();
+
+                appendColoredText("Solution found:\n", "#FFFFFF"); // Warna putih untuk teks awal
+                System.out.println("Solution found!");
+
+                for (char[] row : board) {
+                    for (char c : row) {
+                        String color = colorMap.getOrDefault(c, "#FFFFFF"); // Default warna putih
+                        appendColoredText(String.valueOf(c), color);
+                    }
+                    appendColoredText("\n", "#FFFFFF"); // Tambahkan baris baru
+                }
+
+                appendColoredText("Execution time: " + lastExecutionTime + " ms\n", "#FFFFFF");
+                appendColoredText("Iteration count: " + iterationCount + "\n", "#FFFFFF");
             });
         } else {
             Platform.runLater(() -> {
-                outputTextArea.clear();
+                outputTextFlow.getChildren().clear();
                 clearGeneratedImage();
-                outputTextArea.appendText("No solution found.\n");
+
+                appendColoredText("No solution found.\n", "#FF0000"); // Red for emphasis
                 System.out.println("No solution found.");
-                outputTextArea.appendText("Execution time: " + lastExecutionTime + " ms\n");
-                outputTextArea.appendText("Iteration count: " + iterationCount + "\n");
+
+                appendColoredText("Execution time: " + lastExecutionTime + " ms\n", "#FFFFFF"); // White text
+                appendColoredText("Iteration count: " + iterationCount + "\n", "#FFFFFF");
             });
+
         }
+    }
+
+    private void appendColoredText(String text, String hexColor) {
+        Text coloredText = new Text(text);
+        coloredText.setFill(Color.web(hexColor));
+        outputTextFlow.getChildren().add(coloredText);
     }
 
     private void clearGeneratedImage() {
