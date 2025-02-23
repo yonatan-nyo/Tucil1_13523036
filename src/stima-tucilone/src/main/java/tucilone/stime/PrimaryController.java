@@ -183,9 +183,9 @@ public class PrimaryController {
             System.arraycopy(rowChars, 0, grid[i], 0, Math.min(rowChars.length, columns));
         }
 
-        // 4-way movement
-        int[] dRow = { -1, 1, 0, 0 };
-        int[] dCol = { 0, 0, -1, 1 };
+        // 8-way movement (including diagonals)
+        int[] dRow = { -1, 1, 0, 0, -1, -1, 1, 1 };
+        int[] dCol = { 0, 0, -1, 1, -1, 1, -1, 1 };
 
         // DFS to extract a piece
         for (int i = 0; i < rows; i++) {
@@ -222,7 +222,7 @@ public class PrimaryController {
         cells.add(new int[] { r, c });
 
         // Explore all 4 directions
-        for (int d = 0; d < 4; d++) {
+        for (int d = 0; d < 8; d++) {
             int newRow = r + dRow[d];
             int newCol = c + dCol[d];
 
