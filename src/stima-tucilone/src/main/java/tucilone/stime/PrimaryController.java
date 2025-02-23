@@ -95,6 +95,12 @@ public class PrimaryController {
                             displayError("The number of pieces must be ≤ 26.");
                             return;
                         }
+
+                        // rows columns piecesCount must > 0
+                        if (rows <= 0 || columns <= 0 || piecesCount <= 0) {
+                            displayError("Rows, columns, and pieces count must be positive integers.");
+                            return;
+                        }
                     } else {
                         displayError("Missing dimensions in the first line.");
                         return;
